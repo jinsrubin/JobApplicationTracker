@@ -1,0 +1,23 @@
+.error {
+  color: red;
+  font-size: 12px;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: center;
+}
+
+button {
+  margin: 0 5px;
+}

@@ -46,16 +46,16 @@ namespace JobApplicationTracker.Server.Controllers
             var jobApplication = await _jobApplicationHandler.AddJobApplicationAsync(jobApplicationRequest);
             return CreatedAtAction(nameof(GetById), new { id = jobApplication.Id }, jobApplication);
         }
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> Update(int id, [FromBody] JobApplicationRequest jobApplicationRequest)
-        //{
-        //    var updatedApplication = await _jobApplicationHandler.UpdateJobApplicationAsync(id, jobApplicationRequest);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] JobApplicationRequest jobApplicationRequest)
+        {
+            var updatedApplication = await _jobApplicationHandler.UpdateJobApplicationAsync(id, jobApplicationRequest);
 
-        //    if (updatedApplication == null)
-        //        return NotFound();
+            if (updatedApplication == null)
+                return NotFound();
 
-        //    return Ok(updatedApplication);
-        //}
+            return Ok(updatedApplication);
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
