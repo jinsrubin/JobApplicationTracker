@@ -1,5 +1,6 @@
 ﻿using JobApplicationTracker.Server.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace JobApplicationTracker.Server.Repositories
 {
@@ -32,14 +33,9 @@ namespace JobApplicationTracker.Server.Repositories
             await _context.SaveChangesAsync();
             return entity;
         }
-        public async Task DeleteAsync(int id)
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
         {
-            var entity = await GetByIdAsync(id);
-            if (entity != null)
-            {
-                _context.Set<T>().Remove(entity);
-                await _context.SaveChangesAsync();
-            }
+            return await _context.Set<T>().AnyAsync(predicate);
         }
     }
 }

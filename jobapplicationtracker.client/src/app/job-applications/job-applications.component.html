@@ -1,117 +1,128 @@
-<h2>Job Application Tracker</h2>
-<div class="job-application-form">
-  <form (ngSubmit)="addJobApplication(jobApplicationForm)"  #jobApplicationForm="ngForm" >
-    <div>
-      <label for="company">Company:</label>
-      <input type="text" id="companyName" required [(ngModel)]="newJobApplication.companyName" name="company" #company="ngModel">
-      <div *ngIf="company.invalid && (company.dirty || company.touched)" class="error">
-        <div *ngIf="company.errors?.['required']">Company is required.</div>
+<div class="container">
+  <h2>Job Application Tracker</h2>
+  <div class="form-container">
+    <form (ngSubmit)="addJobApplication(jobApplicationForm)" #jobApplicationForm="ngForm" class="form-container">
+      <div class="form-group">
+        <label for="company">Company:</label>
+        <input type="text" id="companyName" required [(ngModel)]="newJobApplication.companyName" name="company" #company="ngModel">
+        <div *ngIf="company.invalid && (company.dirty || company.touched)" class="error">
+          <div *ngIf="company.errors?.['required']">Company is required.</div>
+        </div>
       </div>
-    </div>
-    <div>
-      <label for="position">Position:</label>
-      <input type="text" id="position" required [(ngModel)]="newJobApplication.position" name="position" #position="ngModel">
-      <div *ngIf="position.invalid && (position.dirty || position.touched)" class="error">
-        <div *ngIf="position.errors?.['required']">Position is required.</div>
+      <div class="form-group">
+        <label for="position">Position:</label>
+        <input type="text" id="position" required [(ngModel)]="newJobApplication.position" name="position" #position="ngModel">
+        <div *ngIf="position.invalid && (position.dirty || position.touched)" class="error">
+          <div *ngIf="position.errors?.['required']">Position is required.</div>
+        </div>
       </div>
-    </div>
-    <div>
-      <label for="status">Status:</label>
-      <select id="status" required [(ngModel)]="newJobApplication.status" name="status" #status="ngModel">
-        <option value="" disabled>Select status</option>
-        <option *ngFor="let statusOption of statuses" [value]="statusOption.value">{{ statusOption.label }}</option>
-      </select>
-      <div *ngIf="status.invalid && (status.dirty || status.touched)" class="error">
-        <div *ngIf="status.errors?.['required']">Status is required.</div>
+      <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" required [(ngModel)]="newJobApplication.status" name="status" #status="ngModel">
+          <option *ngFor="let statusOption of statuses" [ngValue]="statusOption.value">{{ statusOption.label }}</option>
+        </select>
+        <div *ngIf="status.invalid && (status.dirty || status.touched)" class="error">
+          <div *ngIf="status.errors?.['required']">Status is required.</div>
+        </div>
       </div>
-    </div>
-    <div>
-      <label for="dateApplied">Date Applied:</label>
-      <input type="date" id="dateApplied" required
-             [(ngModel)]="newJobApplication.dateApplied"
-             name="dateApplied" #dateApplied="ngModel">
+      <div class="form-group">
+        <label for="dateApplied">Date Applied:</label>
+        <input type="date" id="dateApplied" required
+               [(ngModel)]="newJobApplication.dateApplied"
+               name="dateApplied" #dateApplied="ngModel">
 
-      <div *ngIf="dateApplied.invalid && (dateApplied.dirty || dateApplied.touched)" class="error">
-        <div *ngIf="dateApplied.errors?.['required']">Date Applied is required.</div>
+        <div *ngIf="dateApplied.invalid && (dateApplied.dirty || dateApplied.touched)" class="error">
+          <div *ngIf="dateApplied.errors?.['required']">Date Applied is required.</div>
+        </div>
       </div>
+      <div class="form-actions">
+        <button type="submit" [disabled]="jobApplicationForm.invalid">Add Job Application</button>
+      </div>
+    </form>
+  </div>
+  <hr />
+  <div *ngIf="loading">Loading job applications...</div>
+  <div *ngIf="!loading && jobApplications.length>0" class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Company Name</th>
+          <th>Position</th>
+          <th>Status</th>
+          <th>Date Applied</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let jobApplication of paginatedJobApplications">
+          <!-- Company Name -->
+          <td *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id">
+            {{ jobApplication.companyName }}
+          </td>
+          <td *ngIf="editingJobApplication?.id === jobApplication.id">
+            <input type="text" [(ngModel)]="editingJobApplication!.companyName"
+                   name="editCompanyName" required #editCompanyName="ngModel">
+          </td>
+
+          <!-- Position -->
+          <td *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id">
+            {{ jobApplication.position }}
+          </td>
+          <td *ngIf="editingJobApplication?.id === jobApplication.id">
+            <input type="text" [(ngModel)]="editingJobApplication!.position"
+                   name="editPosition" required #editPosition="ngModel">
+          </td>
+
+          <!-- Status -->
+          <td *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id">
+            {{ getStatusLabel(jobApplication.status) }}
+          </td>
+          <td *ngIf="editingJobApplication?.id === jobApplication.id">
+            <select [(ngModel)]="editingJobApplication!.status" name="editStatus" required #editStatus="ngModel">
+              <option *ngFor="let statusOption of statuses" [ngValue]="statusOption.value">
+                {{ statusOption.label }}
+              </option>
+            </select>
+          </td>
+
+          <!-- Date Applied -->
+          <td *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id">
+            {{ jobApplication.dateApplied | date: 'dd MMM yyyy'}}
+          </td>
+          <td *ngIf="editingJobApplication?.id === jobApplication.id">
+            <input type="date" [(ngModel)]="editingJobApplication!.dateApplied"
+                   name="editDateApplied" required #editDateApplied="ngModel">
+          </td>
+
+          <!-- Actions -->
+          <td>
+            <button *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id"
+                    (click)="editJobApplication(jobApplication)">
+              Edit
+            </button>
+
+            <button *ngIf="editingJobApplication?.id === jobApplication.id"
+                    (click)="updateJobApplication()">
+              Save
+            </button>
+
+            <button *ngIf="editingJobApplication?.id === jobApplication.id"
+                    (click)="cancelEdit()">
+              Cancel
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination-buttons" style="text-align: center; margin-top: 10px;">
+      <button (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+
+      <span style="margin: 0 10px;">Page {{ currentPage }} of {{ totalPages }}</span>
+
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
     </div>
-    <button type="submit" [disabled]="jobApplicationForm.invalid">Add Job Application</button>
-  </form>
-
-  <hr>
-  <h3>Job Applications</h3>
-  <table border="1">
-    <thead>
-      <tr>
-        <th>Company Name</th>
-        <th>Position</th>
-        <th>Status</th>
-        <th>Date Applied</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let jobApplication of jobApplications">
-        <!-- Company Name -->
-        <td *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id">
-        {{ jobApplication.companyName }}
-        </td>
-        <td *ngIf="editingJobApplication?.id === jobApplication.id">
-          <input type="text" [(ngModel)]="editingJobApplication!.companyName"
-                 name="editCompanyName" required #editCompanyName="ngModel">
-        </td>
-
-        <!-- Position -->
-        <td *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id">
-        {{ jobApplication.position }}
-        </td>
-        <td *ngIf="editingJobApplication?.id === jobApplication.id">
-          <input type="text" [(ngModel)]="editingJobApplication!.position"
-                 name="editPosition" required #editPosition="ngModel">
-        </td>
-
-        <!-- Status -->
-        <td *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id">
-          {{ getStatusLabel(jobApplication.status) }}
-        </td>
-        <td *ngIf="editingJobApplication?.id === jobApplication.id">
-          <select [(ngModel)]="editingJobApplication!.status" name="editStatus" required #editStatus="ngModel">
-            <option *ngFor="let statusOption of statuses" [value]="statusOption.value">
-              {{ statusOption.label }}
-            </option>
-          </select>
-        </td>
-
-        <!-- Date Applied -->
-        <td *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id">
-          {{ jobApplication.dateApplied | date: 'dd MMM yyyy'}}
-        </td>
-        <td *ngIf="editingJobApplication?.id === jobApplication.id">
-          <input type="date" [(ngModel)]="editingJobApplication!.dateApplied"
-                 name="editDateApplied" required #editDateApplied="ngModel">
-        </td>
-
-        <!-- Actions -->
-        <td>
-          <button *ngIf="!editingJobApplication || editingJobApplication.id !== jobApplication.id"
-                  (click)="editJobApplication(jobApplication)">
-          Edit
-          </button>
-
-          <button *ngIf="editingJobApplication?.id === jobApplication.id"
-                  (click)="saveJobApplication()">
-            Save
-          </button>
-
-          <button *ngIf="editingJobApplication?.id === jobApplication.id"
-                  (click)="cancelEdit()">
-            Cancel
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div *ngIf="jobApplications.length === 0">
-  No job applications found.
+    <div *ngIf="!loading && jobApplications.length === 0" class="no-data">
+      No job applications found.
+    </div>
   </div>
 </div>

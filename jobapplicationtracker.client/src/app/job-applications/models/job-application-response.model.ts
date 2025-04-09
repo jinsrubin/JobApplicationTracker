@@ -3,5 +3,5 @@ export interface JobApplicationResponse {
   companyName: string;
   position: string;
   status: number;
-  dateApplied: Date;
+  dateApplied: string;
 }

@@ -30,15 +30,31 @@ namespace JobApplicationTracker.Server.Services
             var createdJobApplication = await _repository.AddAsync(jobApplication);
             return _mapper.Map<JobApplicationResponse>(createdJobApplication);
         }
-        public async Task<JobApplicationResponse> UpdateJobApplicationAsync(JobApplicationRequest jobApplicationRequest)
+        public async Task<JobApplicationResponse> UpdateJobApplicationAsync(int id,JobApplicationRequest jobApplicationRequest)
         {
-            var jobApplication = _mapper.Map<JobApplication>(jobApplicationRequest);
-            var updatedJobApplication = await _repository.UpdateAsync(jobApplication);
+            var existingJobApplication = await _repository.GetByIdAsync(id);
+            if (existingJobApplication == null)
+            {
+                throw new KeyNotFoundException($"Job application with ID {id} not found.");
+            }
+            existingJobApplication.CompanyName = jobApplicationRequest.CompanyName;
+            existingJobApplication.Position = jobApplicationRequest.Position;
+            existingJobApplication.Status = jobApplicationRequest.Status;
+            existingJobApplication.DateApplied = jobApplicationRequest.DateApplied;
+
+            var updatedJobApplication = await _repository.UpdateAsync(existingJobApplication);
+
             return _mapper.Map<JobApplicationResponse>(updatedJobApplication);
         }
-        public async Task DeleteJobApplicationAsync(int id)
+        public async Task<bool> JobApplicationExistsAsync(JobApplicationRequest jobApplicationRequest, int? excluded = null)
         {
-            await _repository.DeleteAsync(id);
+            return await _repository.AnyAsync(j =>
+            excluded == null || j.Id != excluded.Value &&
+            j.CompanyName == jobApplicationRequest.CompanyName &&
+            j.Position == jobApplicationRequest.Position &&
+            j.Status == jobApplicationRequest.Status &&
+            j.DateApplied.Date == jobApplicationRequest.DateApplied.Date
+            );
         }
     }
 }
