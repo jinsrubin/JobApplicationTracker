@@ -44,23 +44,32 @@ namespace JobApplicationTracker.Server.Controllers
                 return BadRequest(ModelState);
             }
             var jobApplication = await _jobApplicationHandler.AddJobApplicationAsync(jobApplicationRequest);
+            if (jobApplication == null)
+            {
+                return Conflict(new { message = "A job application with the same details already exists." });
+            }
             return CreatedAtAction(nameof(GetById), new { id = jobApplication.Id }, jobApplication);
         }
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> Update(int id, [FromBody] JobApplicationRequest jobApplicationRequest)
-        //{
-        //    var updatedApplication = await _jobApplicationHandler.UpdateJobApplicationAsync(id, jobApplicationRequest);
-
-        //    if (updatedApplication == null)
-        //        return NotFound();
-
-        //    return Ok(updatedApplication);
-        //}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] JobApplicationRequest jobApplicationRequest)
         {
-            await _jobApplicationHandler.DeleteJobApplicationAsync(id);
-            return NoContent();
+            if (jobApplicationRequest == null)
+            {
+                return BadRequest("Job application request cannot be null");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var updatedApplication = await _jobApplicationHandler.UpdateJobApplicationAsync(id, jobApplicationRequest);
+
+            if (updatedApplication == null)
+            {
+                return Conflict(new { message = "Another job application with the same details already exists." });
+            }
+
+            return Ok(updatedApplication);
         }
     }
 }

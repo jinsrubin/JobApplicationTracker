@@ -1,4 +1,6 @@
 ﻿
+using System.Linq.Expressions;
+
 namespace JobApplicationTracker.Server.Repositories
 {
     public interface IRepository<T> where T : class
@@ -7,6 +9,6 @@ namespace JobApplicationTracker.Server.Repositories
         Task<T?> GetByIdAsync(int id);
         Task<T> AddAsync(T entity);
         Task<T> UpdateAsync(T entity);
-        Task DeleteAsync(int id);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
     }
 }

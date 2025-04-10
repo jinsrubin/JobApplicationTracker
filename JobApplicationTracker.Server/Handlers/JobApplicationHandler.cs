@@ -20,15 +20,21 @@ namespace JobApplicationTracker.Server.Handlers
         }
         public async Task<JobApplicationResponse> AddJobApplicationAsync(JobApplicationRequest jobApplicationRequest)
         {
+            var isDuplicate = await _jobApplicationService.JobApplicationExistsAsync(jobApplicationRequest);
+            if (isDuplicate)
+            {
+                return null;
+            }
             return await _jobApplicationService.AddJobApplicationAsync(jobApplicationRequest);
         }
-        public async Task<JobApplicationResponse> UpdateJobApplicationAsync(JobApplicationRequest jobApplicationRequest)
+        public async Task<JobApplicationResponse> UpdateJobApplicationAsync(int id, JobApplicationRequest jobApplicationRequest)
         {
-            return await _jobApplicationService.UpdateJobApplicationAsync(jobApplicationRequest);
-        }
-        public async Task DeleteJobApplicationAsync(int id)
-        {
-            await _jobApplicationService.DeleteJobApplicationAsync(id);
+            var isDuplicate = await _jobApplicationService.JobApplicationExistsAsync(jobApplicationRequest, id);
+            if (isDuplicate)
+            {
+                return null;
+            }
+            return await _jobApplicationService.UpdateJobApplicationAsync(id, jobApplicationRequest);
         }
     }
 }
