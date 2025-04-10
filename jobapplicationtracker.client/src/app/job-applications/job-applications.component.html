@@ -29,7 +29,7 @@
         <label for="dateApplied">Date Applied:</label>
         <input type="date" id="dateApplied" required
                [(ngModel)]="newJobApplication.dateApplied"
-               name="dateApplied" #dateApplied="ngModel">
+               [max]="today" name="dateApplied" #dateApplied="ngModel">
 
         <div *ngIf="dateApplied.invalid && (dateApplied.dirty || dateApplied.touched)" class="error">
           <div *ngIf="dateApplied.errors?.['required']">Date Applied is required.</div>
@@ -41,7 +41,7 @@
     </form>
   </div>
   <hr />
-  <div *ngIf="loading">Loading job applications...</div>
+  <div *ngIf="loading">Loading Job Applications...</div>
   <div *ngIf="!loading && jobApplications.length>0" class="table-container">
     <table>
       <thead>
@@ -91,7 +91,7 @@
           </td>
           <td *ngIf="editingJobApplication?.id === jobApplication.id">
             <input type="date" [(ngModel)]="editingJobApplication!.dateApplied"
-                   name="editDateApplied" required #editDateApplied="ngModel">
+                   [max]="today" name="editDateApplied" required #editDateApplied="ngModel">
           </td>
 
           <!-- Actions -->

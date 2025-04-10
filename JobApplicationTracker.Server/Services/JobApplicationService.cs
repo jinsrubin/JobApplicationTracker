@@ -9,10 +9,14 @@ namespace JobApplicationTracker.Server.Services
     {
         private readonly IRepository<JobApplication> _repository;
         private readonly IMapper _mapper;
-        public JobApplicationService(IRepository<JobApplication> repository, IMapper mapper)
+        private readonly ILogger<JobApplicationService> _logger;
+        public JobApplicationService(IRepository<JobApplication> repository,
+            IMapper mapper,
+            ILogger<JobApplicationService> logger)
         {
             _repository = repository;
             _mapper = mapper;
+            _logger = logger;
         }
         public async Task<IEnumerable<JobApplicationResponse>> GetJobApplicationsAsync()
         {
@@ -28,6 +32,7 @@ namespace JobApplicationTracker.Server.Services
         {
             var jobApplication = _mapper.Map<JobApplication>(jobApplicationRequest);
             var createdJobApplication = await _repository.AddAsync(jobApplication);
+            _logger.LogInformation($"Job application with ID - {createdJobApplication.Id}, Company - {createdJobApplication.CompanyName} and Position - {createdJobApplication.Position} created successfully.");
             return _mapper.Map<JobApplicationResponse>(createdJobApplication);
         }
         public async Task<JobApplicationResponse> UpdateJobApplicationAsync(int id,JobApplicationRequest jobApplicationRequest)
@@ -43,13 +48,14 @@ namespace JobApplicationTracker.Server.Services
             existingJobApplication.DateApplied = jobApplicationRequest.DateApplied;
 
             var updatedJobApplication = await _repository.UpdateAsync(existingJobApplication);
+            _logger.LogInformation($"Job application with ID - {updatedJobApplication.Id}, Company - {updatedJobApplication.CompanyName} and Position - {updatedJobApplication.Position} updated successfully.");
 
             return _mapper.Map<JobApplicationResponse>(updatedJobApplication);
         }
         public async Task<bool> JobApplicationExistsAsync(JobApplicationRequest jobApplicationRequest, int? excluded = null)
         {
             return await _repository.AnyAsync(j =>
-            excluded == null || j.Id != excluded.Value &&
+            (excluded == null || j.Id != excluded.Value) &&
             j.CompanyName == jobApplicationRequest.CompanyName &&
             j.Position == jobApplicationRequest.Position &&
             j.Status == jobApplicationRequest.Status &&

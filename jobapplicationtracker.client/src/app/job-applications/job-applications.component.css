@@ -97,7 +97,9 @@ tr:hover {
 .error {
   color: red;
   font-size: 0.8rem;
-  margin-left: 130px;
+  margin-top: 4px;
+  margin-left: 5px;
+  text-align: left;
 }
 
 /* Responsive Adjustments */

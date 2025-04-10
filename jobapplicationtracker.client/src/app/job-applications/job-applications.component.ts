@@ -17,6 +17,7 @@ import { retryWhen, delay, scan } from 'rxjs/operators';
 export class JobApplicationsComponent implements OnInit {
   jobApplications: JobApplicationResponse[] = [];
   loading: boolean = false; // Loading indicator
+  today: string = ''; 
   currentPage: number = 1;
   pageSize: number = 5;
   newJobApplication: JobApplicationRequest = {
@@ -43,6 +44,12 @@ export class JobApplicationsComponent implements OnInit {
     private toastr: ToastrService
   ) { }
   ngOnInit(): void {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // month is 0-based
+    const day = now.getDate().toString().padStart(2, '0');
+
+    this.today = `${year}-${month}-${day}`;
     this.loadJobApplications();
   }
   InitializeNewApplication(): JobApplicationRequest {
